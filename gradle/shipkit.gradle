@@ -1,0 +1,24 @@
+shipkit {
+    gitHub.repository = "magneticflux-/jvm-shared-memory"
+
+    gitHub.readOnlyAuthToken = "0036558481e1d3e998659374a3942d9186b7ca6b"
+
+    gitHub.writeAuthToken = System.getenv("GH_WRITE_TOKEN")
+}
+
+allprojects {
+    plugins.withId("org.shipkit.bintray") {
+        bintray {
+            user = 'magneticflux'
+            key = System.getenv("BINTRAY_API_KEY")
+
+            pkg {
+                repo = 'maven'
+                name = 'jvm-shared-memory'
+                licenses = ['LGPL-3.0']
+                labels = ['jvm', 'native', 'shared-memory', 'jna']
+                vcsUrl = 'https://github.com/magneticflux-/jvm-shared-memory.git'
+            }
+        }
+    }
+}
