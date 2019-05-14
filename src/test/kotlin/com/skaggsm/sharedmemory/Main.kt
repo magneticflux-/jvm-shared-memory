@@ -4,7 +4,7 @@ import com.sun.jna.Native
 import com.sun.jna.Pointer
 import com.sun.jna.Structure
 
-class MumbleLinkMemory(p: Pointer) : Structure(p) {
+class MumbleLinkMemory(p: Pointer?) : Structure(p) {
     override fun getFieldOrder(): MutableList<String> {
         return mutableListOf("uiVersion", "uiTick", "fAvatarPosition", "fAvatarFront", "fAvatarTop", "name")
     }
@@ -24,7 +24,9 @@ class MumbleLinkMemory(p: Pointer) : Structure(p) {
 }
 
 fun main() {
-    SharedMemory.getSharedMemory("MumbleLink").use {
+    val size = MumbleLinkMemory(null).size().toLong()
+
+    SharedMemory.getSharedMemory("MumbleLink", size).use {
         val mem = MumbleLinkMemory(it.memory)
         mem.clear()
 

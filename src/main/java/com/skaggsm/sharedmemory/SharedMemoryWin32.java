@@ -16,8 +16,16 @@ public class SharedMemoryWin32 implements SharedMemory {
     private Pointer memory;
     private boolean closed;
 
-    SharedMemoryWin32(String name) {
-        mapping = Kernel32.INSTANCE.CreateFileMapping(INVALID_HANDLE_VALUE, null, PAGE_READWRITE, 0, 1, name);
+    /**
+     * @param name The name of the memory
+     * @param size The amount of memory to allocate
+     * @apiNote {@code size} is UNSIGNED
+     */
+    SharedMemoryWin32(String name, long size) {
+        int sizeHigherBits = (int) (size >>> 32);
+        int sizeLowerBits = (int) (size);
+
+        mapping = Kernel32.INSTANCE.CreateFileMapping(INVALID_HANDLE_VALUE, null, PAGE_READWRITE, sizeHigherBits, sizeLowerBits, name);
         memory = Kernel32.INSTANCE.MapViewOfFile(mapping, FILE_MAP_ALL_ACCESS, 0, 0, 0);
         closed = false;
     }
