@@ -16,6 +16,11 @@ public class SharedMemoryWin32 implements SharedMemory {
     private Pointer memory;
     private boolean closed;
 
+    /**
+     * @param name The name of the memory
+     * @param size The amount of memory to allocate
+     * @apiNote {@code size} is UNSIGNED
+     */
     SharedMemoryWin32(String name, long size) {
         int sizeHigherBits = (int) (size >>> 32);
         int sizeLowerBits = (int) (size);
