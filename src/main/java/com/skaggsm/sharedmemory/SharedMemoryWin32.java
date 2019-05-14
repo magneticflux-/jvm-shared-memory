@@ -17,7 +17,7 @@ public class SharedMemoryWin32 implements SharedMemory {
     private boolean closed;
 
     SharedMemoryWin32(String name) {
-        mapping = Kernel32.INSTANCE.CreateFileMapping(INVALID_HANDLE_VALUE, null, PAGE_READWRITE, 0, 1, "MumbleLink");
+        mapping = Kernel32.INSTANCE.CreateFileMapping(INVALID_HANDLE_VALUE, null, PAGE_READWRITE, 0, 1, name);
         memory = Kernel32.INSTANCE.MapViewOfFile(mapping, FILE_MAP_ALL_ACCESS, 0, 0, 0);
         closed = false;
     }
