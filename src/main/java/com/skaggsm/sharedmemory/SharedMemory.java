@@ -1,5 +1,6 @@
 package com.skaggsm.sharedmemory;
 
+import com.skaggsm.sharedmemory.win32.SharedMemoryWin32;
 import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
 
