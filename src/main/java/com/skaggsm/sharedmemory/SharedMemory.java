@@ -1,5 +1,6 @@
 package com.skaggsm.sharedmemory;
 
+import com.skaggsm.sharedmemory.posix.SharedMemoryPOSIX;
 import com.skaggsm.sharedmemory.win32.SharedMemoryWin32;
 import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
@@ -30,7 +31,7 @@ public interface SharedMemory extends Closeable {
         if (Platform.isWindows())
             return new SharedMemoryWin32(name, size);
         else
-            throw new UnsupportedOperationException("Shared memory is not supported outside of Windows right now!");
+            return new SharedMemoryPOSIX(name, size);
     }
 
     Pointer getMemory();

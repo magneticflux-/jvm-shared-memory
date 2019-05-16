@@ -1,3 +1,5 @@
+.kotlintest
+
 # Created by .ignore support plugin (hsz.mobi)
 ### macOS template
 # General
@@ -199,4 +201,3 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
-
