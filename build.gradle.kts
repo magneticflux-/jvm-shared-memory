@@ -17,7 +17,10 @@ dependencies {
     implementation("net.java.dev.jna:platform:3.4.0")
 
     testImplementation(kotlin("stdlib-jdk8"))
-    testImplementation("junit", "junit", "4.12")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.4.2")
+    testImplementation("org.amshove.kluent:kluent:1.49")
+    testImplementation("io.kotlintest:kotlintest-runner-junit5:3.3.2")
+    testImplementation("org.slf4j:slf4j-nop:1.7.26")
 }
 
 configure<JavaPluginConvention> {
@@ -25,4 +28,11 @@ configure<JavaPluginConvention> {
 }
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
+}
+
+tasks.test {
+    useJUnitPlatform()
+    testLogging {
+        events("passed", "skipped", "failed")
+    }
 }
