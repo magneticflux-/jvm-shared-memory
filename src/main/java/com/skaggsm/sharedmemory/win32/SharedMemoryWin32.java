@@ -1,5 +1,6 @@
-package com.skaggsm.sharedmemory;
+package com.skaggsm.sharedmemory.win32;
 
+import com.skaggsm.sharedmemory.SharedMemory;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.WinNT;
@@ -21,7 +22,7 @@ public class SharedMemoryWin32 implements SharedMemory {
      * @param size The amount of memory to allocate
      * @apiNote {@code size} is UNSIGNED
      */
-    SharedMemoryWin32(String name, long size) {
+    public SharedMemoryWin32(String name, long size) {
         int sizeHigherBits = (int) (size >>> 32);
         int sizeLowerBits = (int) (size);
 
