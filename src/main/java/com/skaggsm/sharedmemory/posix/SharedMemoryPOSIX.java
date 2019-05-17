@@ -3,8 +3,11 @@ package com.skaggsm.sharedmemory.posix;
 import com.skaggsm.sharedmemory.SharedMemory;
 import com.sun.jna.Pointer;
 
-import java.io.IOException;
-
+import static com.skaggsm.sharedmemory.posix.FCNTL.O_CREAT;
+import static com.skaggsm.sharedmemory.posix.FCNTL.O_RDWR;
+import static com.skaggsm.sharedmemory.posix.MMAN.*;
+import static com.skaggsm.sharedmemory.posix.STAT.S_IRUSR;
+import static com.skaggsm.sharedmemory.posix.STAT.S_IWUSR;
 import static com.sun.jna.Pointer.NULL;
 
 /**
@@ -12,15 +15,7 @@ import static com.sun.jna.Pointer.NULL;
  */
 
 public class SharedMemoryPOSIX implements SharedMemory {
-    private static final int O_RDWR = 0;
-
-    private static final int S_IRUSR = 0;
-    private static final int S_IWUSR = 0;
-
-    private static final int PROT_READ = 0;
-    private static final int PROT_WRITE = 0;
-
-    private static final int MAP_SHARED = 0;
+    public static boolean DEBUG = false;
 
     private int fileDescriptor;
     private Pointer memory;
@@ -35,8 +30,15 @@ public class SharedMemoryPOSIX implements SharedMemory {
         // TODO refactor to use visitor to safely use getuid?
         this.name = "/" + name + "." + LibC.INSTANCE.getuid();
 
-        fileDescriptor = LibC.INSTANCE.shm_open(this.name, O_RDWR, S_IRUSR | S_IWUSR);
-        memory = LibC.INSTANCE.mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fileDescriptor, 0);
+        int code;
+
+        fileDescriptor = LibRT.INSTANCE.shm_open(this.name, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+
+        code = LibC.INSTANCE.ftruncate(fileDescriptor, size);
+        if (code != 0 && DEBUG)
+            System.out.println("ftruncate errored!");
+
+        memory = LibRT.INSTANCE.mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fileDescriptor, 0);
     }
 
     @Override
@@ -45,12 +47,20 @@ public class SharedMemoryPOSIX implements SharedMemory {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         if (closed)
             return;
 
-        LibC.INSTANCE.munmap(memory, size);
-        LibC.INSTANCE.shm_unlink(name);
+        int code;
+
+        code = LibRT.INSTANCE.munmap(memory, size);
+        if (code != 0)
+            System.out.println("munmap errored!");
+
+        code = LibRT.INSTANCE.shm_unlink(name);
+        if (code != 0 && DEBUG)
+            System.out.println("shm_unlink errored!");
+
         memory = null;
         fileDescriptor = -1;
 
