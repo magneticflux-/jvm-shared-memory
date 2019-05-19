@@ -57,9 +57,10 @@ public class SharedMemoryPOSIX implements SharedMemory {
         if (code != 0)
             System.out.println("munmap errored!");
 
-        code = LibRT.INSTANCE.shm_unlink(name);
-        if (code != 0 && DEBUG)
-            System.out.println("shm_unlink errored!");
+        // TODO Unlink the file descriptor properly. It will run out of file descriptors eventually, but that isn't likely
+        //code = LibRT.INSTANCE.shm_unlink(name);
+        //if (code != 0 && DEBUG)
+        //    System.out.println("shm_unlink errored!");
 
         memory = null;
         fileDescriptor = -1;
