@@ -13,7 +13,7 @@ interface LibRT extends Library {
 
     static String getRTLibraryName() {
         if (Platform.isMac())
-            return null;
+            return "System.B";
         else
             return "rt";
     }
