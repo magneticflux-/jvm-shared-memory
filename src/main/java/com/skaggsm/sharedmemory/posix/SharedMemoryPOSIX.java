@@ -30,6 +30,8 @@ public class SharedMemoryPOSIX implements SharedMemory {
         // TODO refactor to use visitor to safely use getuid?
         this.name = "/" + name + "." + LibC.INSTANCE.getuid();
 
+        System.err.printf("Filename: \"%s\"%n", this.name);
+
         fileDescriptor = LibRT.INSTANCE.shm_open(this.name, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 
         if (fileDescriptor < 0)
