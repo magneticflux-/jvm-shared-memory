@@ -13,4 +13,6 @@ public interface LibC extends Library {
     int getuid();
 
     int ftruncate(int fd, long length);
+
+    String strerror(int errnum);
 }

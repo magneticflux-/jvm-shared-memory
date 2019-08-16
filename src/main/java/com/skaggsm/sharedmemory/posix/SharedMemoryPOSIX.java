@@ -1,6 +1,7 @@
 package com.skaggsm.sharedmemory.posix;
 
 import com.skaggsm.sharedmemory.SharedMemory;
+import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 
 import static com.skaggsm.sharedmemory.posix.FCNTL.O_CREAT;
@@ -15,7 +16,6 @@ import static com.sun.jna.Pointer.NULL;
  */
 
 public class SharedMemoryPOSIX implements SharedMemory {
-    public static boolean DEBUG = false;
 
     private int fileDescriptor;
     private Pointer memory;
@@ -30,15 +30,20 @@ public class SharedMemoryPOSIX implements SharedMemory {
         // TODO refactor to use visitor to safely use getuid?
         this.name = "/" + name + "." + LibC.INSTANCE.getuid();
 
-        int code;
-
         fileDescriptor = LibRT.INSTANCE.shm_open(this.name, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 
-        code = LibC.INSTANCE.ftruncate(fileDescriptor, size);
-        if (code != 0 && DEBUG)
-            System.out.println("ftruncate errored!");
+        if (fileDescriptor < 0)
+            throw new RuntimeException(LibC.INSTANCE.strerror(Native.getLastError()));
+
+        int ftruncateCode = LibC.INSTANCE.ftruncate(fileDescriptor, size);
+
+        if (ftruncateCode < 0)
+            throw new RuntimeException(LibC.INSTANCE.strerror(Native.getLastError()));
 
         memory = LibRT.INSTANCE.mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fileDescriptor, 0);
+
+        if (memory.equals(MAP_FAILED))
+            throw new RuntimeException(LibC.INSTANCE.strerror(Native.getLastError()));
     }
 
     @Override
