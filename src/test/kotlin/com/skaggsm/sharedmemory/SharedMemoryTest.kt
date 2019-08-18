@@ -3,13 +3,14 @@ package com.skaggsm.sharedmemory
 import io.kotlintest.properties.assertAll
 import io.kotlintest.specs.StringSpec
 import org.amshove.kluent.`should equal`
+import java.util.*
 
 /**
  * Created by Mitchell Skaggs on 5/15/2019.
  */
 class SharedMemoryTest : StringSpec({
     "Given two shared memory references with the same name, when the first has a byte set, then both are updated" {
-        val outerName = this.description().name
+        val outerName = getName()
 
         assertAll(ByteGenerator) { byte: Byte ->
             val name = "${outerName}_${this.attempts()}"
@@ -26,7 +27,7 @@ class SharedMemoryTest : StringSpec({
     }
 
     "Given two shared memory references with the same name, when the second has a byte set, then both are updated" {
-        val outerName = this.description().name
+        val outerName = getName()
 
         assertAll(ByteGenerator) { byte: Byte ->
             val name = "${outerName}_${this.attempts()}"
@@ -43,7 +44,7 @@ class SharedMemoryTest : StringSpec({
     }
 
     "Given two shared memory references with different names, when they both have a byte set, then they should have the correct values" {
-        val outerName = this.description().name
+        val outerName = getName()
 
         assertAll(ByteGenerator, ByteGenerator) { byte1: Byte, byte2: Byte ->
             val name = "${outerName}_${this.attempts()}"
@@ -61,7 +62,7 @@ class SharedMemoryTest : StringSpec({
     }
 
     "Given a shared memory reference, when another reference to the same name is reopened, then both are usable" {
-        val outerName = this.description().name
+        val outerName = getName()
 
         assertAll(ByteGenerator) { byte: Byte ->
             val name = "${outerName}_${this.attempts()}"
@@ -83,7 +84,7 @@ class SharedMemoryTest : StringSpec({
     }
 
     "Given two shared memory references with the same name, when the first has a string set, then both are updated" {
-        val outerName = this.description().name
+        val outerName = getName()
 
         assertAll { string: String ->
             val name = "${outerName}_${this.attempts()}"
@@ -101,3 +102,7 @@ class SharedMemoryTest : StringSpec({
         }
     }
 })
+
+fun getName(): String {
+    return UUID.randomUUID().toString().take(12)
+}

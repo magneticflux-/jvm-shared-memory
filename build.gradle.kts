@@ -1,10 +1,12 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+import org.gradle.api.tasks.testing.logging.TestLogEvent.*
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     java
-    kotlin("jvm") version "1.3.31"
+    kotlin("jvm") version "1.3.41"
     id("org.shipkit.java") version "2.2.5"
-    id("com.github.ben-manes.versions") version "0.21.0"
+    id("com.github.ben-manes.versions") version "0.22.0"
 }
 
 group = "com.skaggsm"
@@ -18,14 +20,15 @@ dependencies {
     implementation("net.java.dev.jna:platform:3.4.0")
 
     testImplementation(kotlin("stdlib-jdk8"))
-    testImplementation("org.junit.jupiter:junit-jupiter:5.4.2")
-    testImplementation("org.amshove.kluent:kluent:1.49")
-    testImplementation("io.kotlintest:kotlintest-runner-junit5:3.3.2")
-    testImplementation("org.slf4j:slf4j-nop:1.7.26")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.5.1")
+    testImplementation("org.amshove.kluent:kluent:1.53")
+    testImplementation("io.kotlintest:kotlintest-runner-junit5:3.4.0")
+    testImplementation("org.slf4j:slf4j-nop:2.0.0-alpha0")
 }
 
 configure<JavaPluginConvention> {
     sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 }
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
@@ -34,7 +37,8 @@ tasks.withType<KotlinCompile> {
 tasks.test {
     useJUnitPlatform()
     testLogging {
-        events("passed", "skipped", "failed")
+        events(PASSED, SKIPPED, FAILED, STANDARD_ERROR)
+        exceptionFormat = FULL
     }
 }
 

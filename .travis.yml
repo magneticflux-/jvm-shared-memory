@@ -3,13 +3,18 @@
 
 language: java
 
-jdk:
-  - oraclejdk8
+matrix:
+  include:
+    - os: linux
+      jdk:
+        - openjdk8
+    - os: osx
+      osx_image: xcode9.3
+      env: SKIP_RELEASE=true
 
 #Skipping install step to avoid having Travis run arbitrary './gradlew assemble' task
 # https://docs.travis-ci.com/user/customizing-the-build/#Skipping-the-Installation-Step
-install:
-  - true
+install: skip
 
 #Don't build tags
 branches:
