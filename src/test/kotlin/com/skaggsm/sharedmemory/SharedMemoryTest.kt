@@ -104,5 +104,5 @@ class SharedMemoryTest : StringSpec({
 })
 
 fun getName(): String {
-    return UUID.randomUUID().toString().substring(0, 23)
+    return UUID.randomUUID().toString().take(12)
 }

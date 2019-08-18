@@ -23,24 +23,34 @@ public class SharedMemoryPOSIX implements SharedMemory {
     private String name;
 
     private boolean closed;
+    private boolean hasOwnership;
 
     public SharedMemoryPOSIX(String name, long size) {
         this.size = size;
 
         // TODO refactor to use visitor to safely use getuid?
-        this.name = "/" + name + "." + LibC.INSTANCE.getuid();
+        this.name = String.format("/%s.%d", name, LibC.INSTANCE.getuid());
 
-        fileDescriptor = LibRT.INSTANCE.shm_open(this.name, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+        if (this.name.length() > 31)
+            System.err.printf("Name %s is probably too long for macOS (max 31 chars)%n", this.name);
+
+        fileDescriptor = LibRT.INSTANCE.shm_open(this.name, O_RDWR, S_IRUSR | S_IWUSR);
+        if (fileDescriptor < 0) {
+            fileDescriptor = LibRT.INSTANCE.shm_open(this.name, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+            hasOwnership = true;
+        }
         if (fileDescriptor < 0)
             throw new RuntimeException(LibC.INSTANCE.strerror(Native.getLastError()));
 
-        System.err.printf("ftruncate start with fd %d and size %d%n", fileDescriptor, size);
+        if (hasOwnership) {
+            System.err.printf("ftruncate start with fd %d and size %d%n", fileDescriptor, size);
 
-        int ftruncateCode = LibC.INSTANCE.ftruncate(fileDescriptor, size);
-        if (ftruncateCode < 0)
-            throw new RuntimeException(String.format("fd: %d Size: %d %s", fileDescriptor, size, LibC.INSTANCE.strerror(Native.getLastError())));
+            int ftruncateCode = LibC.INSTANCE.ftruncate(fileDescriptor, size);
+            if (ftruncateCode < 0)
+                throw new RuntimeException(String.format("fd: %d Size: %d %s", fileDescriptor, size, LibC.INSTANCE.strerror(Native.getLastError())));
 
-        System.err.printf("ftruncate succeeded with fd %d and size %d%n", fileDescriptor, size);
+            System.err.printf("ftruncate succeeded with fd %d and size %d%n", fileDescriptor, size);
+        }
 
         memory = LibRT.INSTANCE.mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fileDescriptor, 0);
         if (memory.equals(MAP_FAILED))
@@ -65,9 +75,11 @@ public class SharedMemoryPOSIX implements SharedMemory {
         if (closeCode < 0)
             throw new RuntimeException(LibC.INSTANCE.strerror(Native.getLastError()));
 
-        //int shmUnlinkCode = LibRT.INSTANCE.shm_unlink(name);
-        //if (shmUnlinkCode < 0)
-        //    throw new RuntimeException(LibC.INSTANCE.strerror(Native.getLastError()));
+        if (hasOwnership) {
+            int shmUnlinkCode = LibRT.INSTANCE.shm_unlink(name);
+            if (shmUnlinkCode < 0)
+                throw new RuntimeException(LibC.INSTANCE.strerror(Native.getLastError()));
+        }
 
         memory = null;
         fileDescriptor = -1;
