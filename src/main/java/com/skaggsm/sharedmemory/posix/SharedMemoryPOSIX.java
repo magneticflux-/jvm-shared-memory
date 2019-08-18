@@ -48,6 +48,11 @@ public class SharedMemoryPOSIX implements SharedMemory {
 
         if (memory.equals(MAP_FAILED))
             throw new RuntimeException(LibC.INSTANCE.strerror(Native.getLastError()));
+
+        int closeCode = LibC.INSTANCE.close(fileDescriptor);
+
+        if (closeCode < 0)
+            throw new RuntimeException(LibC.INSTANCE.strerror(Native.getLastError()));
     }
 
     @Override

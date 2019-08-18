@@ -15,4 +15,6 @@ public interface LibC extends Library {
     int ftruncate(int fd, long length);
 
     String strerror(int errnum);
+
+    int close(int fd);
 }
