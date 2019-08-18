@@ -31,21 +31,18 @@ public class SharedMemoryPOSIX implements SharedMemory {
         this.name = "/" + name + "." + LibC.INSTANCE.getuid();
 
         fileDescriptor = LibRT.INSTANCE.shm_open(this.name, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
-
         if (fileDescriptor < 0)
             throw new RuntimeException(LibC.INSTANCE.strerror(Native.getLastError()));
 
         System.err.printf("ftruncate start with fd %d and size %d%n", fileDescriptor, size);
 
         int ftruncateCode = LibC.INSTANCE.ftruncate(fileDescriptor, size);
-
         if (ftruncateCode < 0)
             throw new RuntimeException(String.format("fd: %d Size: %d %s", fileDescriptor, size, LibC.INSTANCE.strerror(Native.getLastError())));
 
         System.err.printf("ftruncate succeeded with fd %d and size %d%n", fileDescriptor, size);
 
         memory = LibRT.INSTANCE.mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fileDescriptor, 0);
-
         if (memory.equals(MAP_FAILED))
             throw new RuntimeException(LibC.INSTANCE.strerror(Native.getLastError()));
     }
@@ -60,21 +57,17 @@ public class SharedMemoryPOSIX implements SharedMemory {
         if (closed)
             return;
 
-        int code;
-
-        code = LibRT.INSTANCE.munmap(memory, size);
-        if (code != 0)
-            System.out.println("munmap errored!");
-
-        // TODO Unlink the file descriptor properly. It will run out of file descriptors eventually, but that isn't likely
-        //code = LibRT.INSTANCE.shm_unlink(name);
-        //if (code != 0 && DEBUG)
-        //    System.out.println("shm_unlink errored!");
+        int munmapCode = LibRT.INSTANCE.munmap(memory, size);
+        if (munmapCode < 0)
+            throw new RuntimeException(LibC.INSTANCE.strerror(Native.getLastError()));
 
         int closeCode = LibC.INSTANCE.close(fileDescriptor);
-
         if (closeCode < 0)
             throw new RuntimeException(LibC.INSTANCE.strerror(Native.getLastError()));
+
+        //int shmUnlinkCode = LibRT.INSTANCE.shm_unlink(name);
+        //if (shmUnlinkCode < 0)
+        //    throw new RuntimeException(LibC.INSTANCE.strerror(Native.getLastError()));
 
         memory = null;
         fileDescriptor = -1;
