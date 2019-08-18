@@ -43,13 +43,9 @@ public class SharedMemoryPOSIX implements SharedMemory {
             throw new RuntimeException(LibC.INSTANCE.strerror(Native.getLastError()));
 
         if (hasOwnership) {
-            System.err.printf("ftruncate start with fd %d and size %d%n", fileDescriptor, size);
-
             int ftruncateCode = LibC.INSTANCE.ftruncate(fileDescriptor, size);
             if (ftruncateCode < 0)
-                throw new RuntimeException(String.format("fd: %d Size: %d %s", fileDescriptor, size, LibC.INSTANCE.strerror(Native.getLastError())));
-
-            System.err.printf("ftruncate succeeded with fd %d and size %d%n", fileDescriptor, size);
+                throw new RuntimeException(LibC.INSTANCE.strerror(Native.getLastError()));
         }
 
         memory = LibRT.INSTANCE.mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fileDescriptor, 0);
