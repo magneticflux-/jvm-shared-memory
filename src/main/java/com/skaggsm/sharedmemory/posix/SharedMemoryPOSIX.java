@@ -40,18 +40,13 @@ public class SharedMemoryPOSIX implements SharedMemory {
         int ftruncateCode = LibC.INSTANCE.ftruncate(fileDescriptor, size);
 
         if (ftruncateCode < 0)
-            throw new RuntimeException(LibC.INSTANCE.strerror(Native.getLastError()));
+            throw new RuntimeException(String.format("fd: %d Size: %d %s", fileDescriptor, size, LibC.INSTANCE.strerror(Native.getLastError())));
 
         System.err.printf("ftruncate succeeded with fd %d and size %d%n", fileDescriptor, size);
 
         memory = LibRT.INSTANCE.mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fileDescriptor, 0);
 
         if (memory.equals(MAP_FAILED))
-            throw new RuntimeException(LibC.INSTANCE.strerror(Native.getLastError()));
-
-        int closeCode = LibC.INSTANCE.close(fileDescriptor);
-
-        if (closeCode < 0)
             throw new RuntimeException(LibC.INSTANCE.strerror(Native.getLastError()));
     }
 
@@ -75,6 +70,11 @@ public class SharedMemoryPOSIX implements SharedMemory {
         //code = LibRT.INSTANCE.shm_unlink(name);
         //if (code != 0 && DEBUG)
         //    System.out.println("shm_unlink errored!");
+
+        int closeCode = LibC.INSTANCE.close(fileDescriptor);
+
+        if (closeCode < 0)
+            throw new RuntimeException(LibC.INSTANCE.strerror(Native.getLastError()));
 
         memory = null;
         fileDescriptor = -1;
