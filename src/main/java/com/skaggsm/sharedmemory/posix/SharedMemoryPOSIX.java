@@ -30,17 +30,19 @@ public class SharedMemoryPOSIX implements SharedMemory {
         // TODO refactor to use visitor to safely use getuid?
         this.name = "/" + name + "." + LibC.INSTANCE.getuid();
 
-        System.err.printf("Filename: \"%s\"%n", this.name);
-
         fileDescriptor = LibRT.INSTANCE.shm_open(this.name, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 
         if (fileDescriptor < 0)
             throw new RuntimeException(LibC.INSTANCE.strerror(Native.getLastError()));
 
+        System.err.printf("ftruncate start with fd %d and size %d%n", fileDescriptor, size);
+
         int ftruncateCode = LibC.INSTANCE.ftruncate(fileDescriptor, size);
 
         if (ftruncateCode < 0)
             throw new RuntimeException(LibC.INSTANCE.strerror(Native.getLastError()));
+
+        System.err.printf("ftruncate succeeded with fd %d and size %d%n", fileDescriptor, size);
 
         memory = LibRT.INSTANCE.mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fileDescriptor, 0);
 
