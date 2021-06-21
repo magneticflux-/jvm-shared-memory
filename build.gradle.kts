@@ -44,6 +44,8 @@ dependencies {
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
+    withSourcesJar()
+    withJavadocJar()
 }
 
 tasks.withType<KotlinCompile> {
@@ -66,4 +68,38 @@ tasks.javadoc {
             "implNote:a:Implementation Note:"
         )
     }
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("lib") {
+            from(components["java"])
+        }
+    }
+
+    repositories {
+        mavenLocal()
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/magneticflux-/jvm-shared-memory")
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
+}
+
+tasks.generateChangelog {
+    repository = "magneticflux-/jvm-shared-memory"
+    previousRevision = project.ext["shipkit-auto-version.previous-tag"]?.toString()
+    githubToken = System.getenv("GITHUB_TOKEN")
+}
+
+tasks.githubRelease {
+    dependsOn(tasks.generateChangelog)
+    repository = "magneticflux-/jvm-shared-memory"
+    changelog = tasks.generateChangelog.get().outputFile
+    githubToken = System.getenv("GITHUB_TOKEN")
+    newTagRevision = System.getenv("GITHUB_SHA")
 }
