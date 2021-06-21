@@ -80,6 +80,14 @@ publishing {
     repositories {
         mavenLocal()
         maven {
+            name = "Personal"
+            url = uri("https://maven.skaggsm.com")
+            credentials {
+                username = "deploy"
+                password = System.getenv("MAVEN_TOKEN")
+            }
+        }
+        maven {
             name = "GitHubPackages"
             url = uri("https://maven.pkg.github.com/magneticflux-/jvm-shared-memory")
             credentials {
