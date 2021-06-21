@@ -81,10 +81,13 @@ publishing {
         mavenLocal()
         maven {
             name = "Personal"
-            url = uri("https://maven.skaggsm.com")
+            url = uri("https://maven.skaggsm.com/releases")
             credentials {
                 username = "deploy"
                 password = System.getenv("MAVEN_TOKEN")
+            }
+            authentication {
+                create<BasicAuthentication>("basic")
             }
         }
         maven {
