@@ -62,7 +62,7 @@ public class SharedMemoryPOSIX implements SharedMemory {
     public void close() {
         if (closed)
             return;
-/*
+
         int munmapCode = LibRT.INSTANCE.munmap(memory, size);
         if (munmapCode < 0)
             throw new RuntimeException(LibC.INSTANCE.strerror(Native.getLastError()));
@@ -79,7 +79,7 @@ public class SharedMemoryPOSIX implements SharedMemory {
 
         memory = null;
         fileDescriptor = -1;
-*/
+
         closed = true;
     }
 }
