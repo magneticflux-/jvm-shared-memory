@@ -6,7 +6,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     java
     `maven-publish`
-    kotlin("jvm") version "1.5.10"
+    kotlin("jvm") version "1.5.21"
     id("org.shipkit.shipkit-auto-version") version "1.+"
     id("org.shipkit.shipkit-changelog") version "1.+"
     id("org.shipkit.shipkit-github-release") version "1.+"
@@ -34,11 +34,11 @@ dependencies {
     testImplementation(kotlin("stdlib-jdk8"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.7.2")
 
-    testImplementation("io.kotest:kotest-runner-junit5:4.6.0")
-    testImplementation("io.kotest:kotest-property:4.6.0")
-    testImplementation("io.kotest:kotest-assertions-core:4.6.0")
+    testImplementation("io.kotest:kotest-runner-junit5:4.6.1")
+    testImplementation("io.kotest:kotest-property:4.6.1")
+    testImplementation("io.kotest:kotest-assertions-core:4.6.1")
 
-    testImplementation("org.slf4j:slf4j-nop:2.0.0-alpha1")
+    testImplementation("org.slf4j:slf4j-nop:2.0.0-alpha2")
 }
 
 java {
