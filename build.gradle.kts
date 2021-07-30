@@ -31,6 +31,9 @@ dependencies {
     implementation("net.java.dev.jna:jna:4.4.0")
     implementation("net.java.dev.jna:platform:3.4.0")
 
+    testImplementation("net.java.dev.jna:jna:5.8.0")
+    testImplementation("net.java.dev.jna:jna-platform:5.8.0")
+
     testImplementation(kotlin("stdlib-jdk8"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.7.2")
 

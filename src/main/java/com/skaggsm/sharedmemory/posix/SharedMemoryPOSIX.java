@@ -36,9 +36,17 @@ public class SharedMemoryPOSIX implements SharedMemory {
 
         fileDescriptor = LibRT.INSTANCE.shm_open(this.name, O_RDWR, S_IRUSR | S_IWUSR);
         if (fileDescriptor < 0) {
+            if (Native.getLastError() != 2 /*ENOENT*/) {
+                RuntimeException t = new RuntimeException("Unusual failure of shm_open with O_RDWR! Message: " + LibC.INSTANCE.strerror(Native.getLastError()));
+                int shmUnlinkCode = LibRT.INSTANCE.shm_unlink(name);
+                if (shmUnlinkCode < 0 && Native.getLastError() != 2 /*ENOENT*/)
+                    throw new RuntimeException("Failed shm_unlink! Message: " + LibC.INSTANCE.strerror(Native.getLastError()), t);
+                else
+                    throw t;
+            }
             fileDescriptor = LibRT.INSTANCE.shm_open(this.name, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
             if (fileDescriptor < 0)
-                throw new RuntimeException("Failed shm_open with O_CREAT! Message: " + LibC.INSTANCE.strerror(Native.getLastError()));
+                throw new RuntimeException("Failed shm_open with O_RDWR | O_CREAT! Message: " + LibC.INSTANCE.strerror(Native.getLastError()));
             hasOwnership = true;
         } else
             hasOwnership = false;
