@@ -11,7 +11,7 @@ abstract class MMAN {
     static final int PROT_READ;
     static final int PROT_WRITE;
     static final int MAP_SHARED;
-    static final Pointer MAP_FAILED = new Pointer(-1);
+    static final Pointer MAP_FAILED = Pointer.createConstant(-1);
 
     static {
         switch (Platform.getOSType()) {
