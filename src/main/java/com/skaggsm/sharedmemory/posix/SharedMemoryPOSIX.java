@@ -17,13 +17,13 @@ import static com.sun.jna.Pointer.NULL;
 
 public class SharedMemoryPOSIX implements SharedMemory {
 
-    private int fileDescriptor;
-    private Pointer memory;
-    private long size;
-    private String name;
+    private final int fileDescriptor;
+    private final Pointer memory;
+    private final long size;
+    private final String name;
+    private final boolean hasOwnership;
 
     private boolean closed;
-    private boolean hasOwnership;
 
     public SharedMemoryPOSIX(String name, long size) {
         this.size = size;
@@ -34,7 +34,7 @@ public class SharedMemoryPOSIX implements SharedMemory {
         if (this.name.length() > 31)
             System.err.printf("Name %s is probably too long for macOS (max 31 chars)%n", this.name);
 
-        fileDescriptor = LibRT.INSTANCE.shm_open(this.name, O_RDWR, S_IRUSR | S_IWUSR);
+        int fileDescriptor = LibRT.INSTANCE.shm_open(this.name, O_RDWR, S_IRUSR | S_IWUSR);
         if (fileDescriptor < 0) {
             if (Native.getLastError() != 2 /*ENOENT*/) {
                 RuntimeException t = new RuntimeException("Unusual failure of shm_open with O_RDWR! Message: " + LibC.INSTANCE.strerror(Native.getLastError()));
@@ -50,6 +50,7 @@ public class SharedMemoryPOSIX implements SharedMemory {
             hasOwnership = true;
         } else
             hasOwnership = false;
+        this.fileDescriptor = fileDescriptor;
 
         if (hasOwnership) {
             int ftruncateCode = LibC.INSTANCE.ftruncate(fileDescriptor, size);
@@ -85,9 +86,6 @@ public class SharedMemoryPOSIX implements SharedMemory {
             if (shmUnlinkCode < 0)
                 throw new RuntimeException("Failed shm_unlink! Message: " + LibC.INSTANCE.strerror(Native.getLastError()));
         }
-
-        memory = null;
-        fileDescriptor = -1;
 
         closed = true;
     }
