@@ -40,7 +40,7 @@ public class SharedMemoryPOSIX implements SharedMemory {
                 RuntimeException t = new RuntimeException("Unusual failure of shm_open with O_RDWR! Message: " + LibC.INSTANCE.strerror(Native.getLastError()));
                 int shmUnlinkCode = LibRT.INSTANCE.shm_unlink(name);
                 if (shmUnlinkCode < 0 && Native.getLastError() != 2 /*ENOENT*/)
-                    throw new RuntimeException("Failed shm_unlink! Message: " + LibC.INSTANCE.strerror(Native.getLastError()), t);
+                    throw new RuntimeException("Unusual secondary failure of shm_unlink after failed shm_open! Message: " + LibC.INSTANCE.strerror(Native.getLastError()), t);
                 else
                     throw t;
             }
