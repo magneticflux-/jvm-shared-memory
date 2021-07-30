@@ -37,20 +37,21 @@ public class SharedMemoryPOSIX implements SharedMemory {
         fileDescriptor = LibRT.INSTANCE.shm_open(this.name, O_RDWR, S_IRUSR | S_IWUSR);
         if (fileDescriptor < 0) {
             fileDescriptor = LibRT.INSTANCE.shm_open(this.name, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+            if (fileDescriptor < 0)
+                throw new RuntimeException("Failed shm_open with O_CREAT! Message: " + LibC.INSTANCE.strerror(Native.getLastError()));
             hasOwnership = true;
-        }
-        if (fileDescriptor < 0)
-            throw new RuntimeException(LibC.INSTANCE.strerror(Native.getLastError()));
+        } else
+            hasOwnership = false;
 
         if (hasOwnership) {
             int ftruncateCode = LibC.INSTANCE.ftruncate(fileDescriptor, size);
             if (ftruncateCode < 0)
-                throw new RuntimeException(LibC.INSTANCE.strerror(Native.getLastError()));
+                throw new RuntimeException("Failed ftruncate! Message: " + LibC.INSTANCE.strerror(Native.getLastError()));
         }
 
         memory = LibRT.INSTANCE.mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fileDescriptor, 0);
         if (memory.equals(MAP_FAILED))
-            throw new RuntimeException(LibC.INSTANCE.strerror(Native.getLastError()));
+            throw new RuntimeException("Failed mmap! Message: " + LibC.INSTANCE.strerror(Native.getLastError()));
     }
 
     @Override
@@ -65,16 +66,16 @@ public class SharedMemoryPOSIX implements SharedMemory {
 
         int munmapCode = LibRT.INSTANCE.munmap(memory, size);
         if (munmapCode < 0)
-            throw new RuntimeException(LibC.INSTANCE.strerror(Native.getLastError()));
+            throw new RuntimeException("Failed munmap! Message: " + LibC.INSTANCE.strerror(Native.getLastError()));
 
         int closeCode = LibC.INSTANCE.close(fileDescriptor);
         if (closeCode < 0)
-            throw new RuntimeException(LibC.INSTANCE.strerror(Native.getLastError()));
+            throw new RuntimeException("Failed close! Message: " + LibC.INSTANCE.strerror(Native.getLastError()));
 
         if (hasOwnership) {
             int shmUnlinkCode = LibRT.INSTANCE.shm_unlink(name);
             if (shmUnlinkCode < 0)
-                throw new RuntimeException(LibC.INSTANCE.strerror(Native.getLastError()));
+                throw new RuntimeException("Failed shm_unlink! Message: " + LibC.INSTANCE.strerror(Native.getLastError()));
         }
 
         memory = null;
