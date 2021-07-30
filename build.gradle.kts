@@ -28,8 +28,11 @@ repositories {
 }
 
 dependencies {
-    implementation("net.java.dev.jna:jna:4.4.0")
-    implementation("net.java.dev.jna:platform:3.4.0")
+    compileOnly("net.java.dev.jna:jna:4.4.0")
+    compileOnly("net.java.dev.jna:platform:3.4.0")
+
+    runtimeOnly("net.java.dev.jna:jna:5.8.0")
+    runtimeOnly("net.java.dev.jna:jna-platform:5.8.0")
 
     testImplementation("net.java.dev.jna:jna:5.8.0")
     testImplementation("net.java.dev.jna:jna-platform:5.8.0")

@@ -8,14 +8,14 @@ import com.sun.jna.Pointer;
 /**
  * Created by Mitchell Skaggs on 5/15/2019.
  */
-interface LibRT extends Library {
-    LibRT INSTANCE = Native.loadLibrary(getRTLibraryName(), LibRT.class);
+public interface LibRT extends Library {
+    LibRT INSTANCE = getInstance();
 
-    static String getRTLibraryName() {
+    static LibRT getInstance() {
         if (Platform.isMac())
-            return Platform.C_LIBRARY_NAME;
+            return Native.loadLibrary(Platform.C_LIBRARY_NAME, MacOSLibRT.class);
         else
-            return "rt";
+            return Native.loadLibrary("rt", LibRT.class);
     }
 
     int shm_open(String name, int oFlag, int mode);
@@ -25,4 +25,12 @@ interface LibRT extends Library {
     Pointer mmap(Pointer addr, long length, int prot, int flags, int fd, long offset);
 
     int munmap(Pointer addr, long length);
+
+    interface MacOSLibRT extends LibRT {
+        default int shm_open(String name, int oFlag, int mode) {
+            return shm_open(name, oFlag, new Object[]{mode});
+        }
+
+        int shm_open(String name, int oFlag, Object... mode);
+    }
 }
