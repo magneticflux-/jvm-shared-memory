@@ -9,7 +9,7 @@ import com.sun.jna.Platform;
  */
 
 public interface LibC extends Library {
-    LibC INSTANCE = Native.loadLibrary(Platform.C_LIBRARY_NAME, LibC.class);
+    LibC INSTANCE = Native.load(Platform.C_LIBRARY_NAME, LibC.class);
 
     int getuid();
 

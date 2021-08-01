@@ -13,9 +13,9 @@ public interface LibRT extends Library {
 
     static LibRT getInstance() {
         if (Platform.isMac())
-            return Native.loadLibrary(Platform.C_LIBRARY_NAME, MacOSLibRT.class);
+            return Native.load(Platform.C_LIBRARY_NAME, MacOSLibRT.class);
         else
-            return Native.loadLibrary("rt", LibRT.class);
+            return Native.load("rt", LibRT.class);
     }
 
     int shm_open(String name, int oFlag, int mode);
